@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grimi Stock Portfolio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: quiet gallery. Logo-only header, one-line intro, filter row, 4-up grid, small footer.
+   Palette comes from the logo: charcoal letters, coral smile, cool light gray ground. */
+:root{
+  --bg:#F3F3F4; --surface:#FFFFFF; --fg:#222222; --muted:#76767C; --line:#E2E2E5;
+  --coral:#F0505A; --coral-ink:#C93843;
+  --t-gesture:#FBE3EA; --t-coin:#FBEFC9; --t-shop:#E7E0FA; --t-season:#DDF1E6; --t-none:#E9E9EC;
+  --display:"Outfit","Noto Sans KR",system-ui,sans-serif; --body:"DM Sans","Noto Sans KR",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#17171A; --surface:#202024; --fg:#EDEDEF; --muted:#9B9BA3; --line:#303036;
+  --coral:#FF6B74; --coral-ink:#FF8A91;
+  --t-gesture:#3A2830; --t-coin:#38331F; --t-shop:#2E2942; --t-season:#232F29; --t-none:#2A2A2F; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17171A; --surface:#202024; --fg:#EDEDEF; --muted:#9B9BA3; --line:#303036;
+  --coral:#FF6B74; --coral-ink:#FF8A91;
+  --t-gesture:#3A2830; --t-coin:#38331F; --t-shop:#2E2942; --t-season:#232F29; --t-none:#2A2A2F; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+*{box-sizing:border-box}
+.wrap{max-width:1180px;margin:0 auto}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:28px}
+.logo{height:26px;width:auto;display:block}
+.logo .ink{fill:var(--fg)} .logo .smile{fill:var(--coral)}
+nav a{color:var(--muted);text-decoration:none;font-size:15px;margin-left:24px}
+nav a:hover,nav a:focus-visible{color:var(--fg)}
+.intro{padding-block:72px 56px;max-width:720px}
+.intro h1{font-family:var(--display);font-weight:600;font-size:clamp(30px,5vw,50px);line-height:1.12;letter-spacing:.01em;margin:0 0 18px;text-wrap:balance}
+.intro h1 em{font-style:normal;color:var(--coral)}
+.intro p{margin:0;color:var(--muted);font-size:18px;max-width:56ch}
+.bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-bottom:22px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tab{font:500 15px var(--body);border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:8px 18px;cursor:pointer}
+.tab:hover{color:var(--fg);border-color:var(--muted)}
+.tab[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.tab:focus-visible,.copy:focus-visible,.card:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+.count{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+@media (max-width:900px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:620px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.thumb{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;position:relative}
+.thumb img{width:100%;height:100%;object-fit:contain}
+.thumb .no{position:absolute;left:12px;top:10px;font:500 12px var(--display);color:var(--muted);letter-spacing:.08em;font-variant-numeric:tabular-nums}
+.thumb .soon{font:500 12px var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.meta{padding:12px 14px 14px;display:flex;flex-direction:column;gap:2px}
+.meta b{font:600 15px var(--display);overflow-wrap:anywhere}
+.meta span{font-size:13px;color:var(--muted)}
+.t-gesture{background:var(--t-gesture)} .t-coin{background:var(--t-coin)} .t-shop{background:var(--t-shop)} .t-season{background:var(--t-season)} .t-none{background:var(--t-none)}
+.empty{grid-column:1/-1;padding:56px 0;text-align:center;color:var(--muted)}
+.contact{margin-top:96px;padding-block:48px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between}
+.contact h2{font:600 24px var(--display);margin:0 0 4px;letter-spacing:-.01em}
+.contact p{margin:0;color:var(--muted)}
+.mail{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.mail code{font:500 16px var(--body);user-select:all;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;overflow-wrap:anywhere}
+.copy{font:600 14px var(--body);background:var(--coral);color:#fff;border:0;border-radius:10px;padding:11px 16px;cursor:pointer}
+.copy:hover{background:var(--coral-ink)}
+footer{padding-block:0 40px;color:var(--muted);font-size:12px;letter-spacing:.06em;text-align:center}
+@media (prefers-reduced-motion:no-preference){.card{transition:transform .2s,border-color .2s}.card:hover{transform:translateY(-3px);border-color:var(--muted)}}
+.card{cursor:pointer}
+.hd-right{display:flex;align-items:center;gap:8px}
+.mode{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;margin-left:12px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer}
+.mode:hover{border-color:var(--muted)} .mode:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+.mode svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.mode .moon{display:none} :root[data-mode="dark"] .mode .sun{display:none} :root[data-mode="dark"] .mode .moon{display:block}
+.lb{position:fixed;inset:0;z-index:50;background:rgba(10,10,12,.78);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.lb[hidden]{display:none}
+.lb-box{width:min(640px,100%);display:flex;flex-direction:column;gap:12px}
+.lb-stage{position:relative;width:100%;aspect-ratio:1/1;border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center;user-select:none;-webkit-user-select:none}
+.lb-stage img{width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
+.lb-stage .soon{font:500 13px var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.wm{position:absolute;right:28px;bottom:28px;width:74px;height:auto;opacity:.5;fill:#fff;filter:drop-shadow(0 0 2px rgba(0,0,0,.45));pointer-events:none}
+.lb-cap{display:flex;align-items:baseline;justify-content:space-between;gap:12px;color:#fff}
+.lb-cap b{font:600 18px var(--display)} .lb-cap span{font-size:14px;color:#c9c9cf}
+.lb-nav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.lb-btn{font:600 14px var(--body);background:rgba(255,255,255,.14);color:#fff;border:0;border-radius:10px;padding:10px 16px;cursor:pointer}
+.lb-btn:hover{background:rgba(255,255,255,.24)} .lb-btn:focus-visible{outline:2px solid var(--coral);outline-offset:2px}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <svg class="logo" viewBox="0 0 351.6 85.87" role="img" aria-label="Grimi">
+      <g class="ink">
+        <path d="M62.56,42.63h12.87l.37.37v27.98C47.63,101.9-2.45,81.49.09,39,.99,24.04,12.15,9.29,25.75,3.45,41.65-3.39,63.16-.1,74.43,13.65c.38.47,1.36,1.45,1.01,2.01l-10,8.23c-4.43-4.98-10.22-8.63-16.85-9.86C24.31,9.51,5.25,35.09,17.21,56.87c8.97,16.33,31.78,20.94,45.35,7.61v-21.86Z"/>
+        <rect x="338.11" y="3.41" width="13.49" height="78.93"/><rect x="183.97" y="3.41" width="12.99" height="78.93"/>
+        <path d="M139.38,3.41c1.72.23,5.68,2.04,7.34,2.9,21.94,11.37,19.74,42.83-2.47,52.18l17.24,24.85h-14.86l-16.49-22.98h-20.61v22.98h-13.49V3.41h43.34ZM109.53,46.62h28.35c1.9,0,7.19-5.01,8.33-6.66,4.97-7.22,1.52-17.94-5.95-21.94-.98-.53-3.61-1.62-4.63-1.62h-26.11v30.22Z"/>
+      </g>
+      <g class="smile">
+        <polygon points="290.53 10.71 321.52 35.39 313.76 45.86 290.52 27.63 268.54 44.81 246.05 27.63 223.07 45.86 214.97 35.73 245.84 10.96 248.16 11.8 268.03 27.58 290.53 10.71"/>
+        <path d="M241.23,70.31c-.37-.63.88-1.93,1.33-2.46,2.4-2.83,5.8-4.72,8-7.74,8.26,8.7,20.49,9.47,30.77,3.79,1.63-.9,3.04-2.11,4.67-3l8.84,8.83c.1,1.21-6.52,5.46-7.77,6.17-12.15,6.83-27.57,6.63-39.37-.94-2.24-1.43-4.09-3.41-6.47-4.64Z"/>
+      </g>
+    </svg>
+    <div class="hd-right"><nav><a href="#works">Works</a><a href="#contact">Contact</a></nav>
+      <button class="mode" id="mode" type="button" aria-label="Switch to dark mode" title="Light / Dark">
+        <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>
+      </button></div>
+  </header>
+
+  <section class="intro">
+    <h1>Grimi Stock <em>Portfolio</em></h1>
+    <p>I'm Grimi, a stock image designer. I make 3D clay icons along with illustrations and icon sets, ready to drop into ads, promotions, social posts and UI design. New work is added regularly.</p>
+  </section>
+
+  <section id="works" aria-label="Works">
+    <div class="bar">
+      <div class="tabs" role="group" aria-label="Filter by genre" id="tabs"></div>
+      <div class="count" id="count" aria-live="polite"></div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="contact" id="contact">
+    <div><h2>Let's work together</h2><p>Licensing questions and custom requests are welcome.</p></div>
+    <div class="mail"><code id="addr">grimi0419@naver.com</code><button class="copy" id="copy" type="button">Copy email</button></div>
+  </section>
+  <footer>© 2026 GRIMI. ALL RIGHTS RESERVED.</footer>
+</div>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Work preview" hidden>
+  <div class="lb-box">
+    <div class="lb-stage" id="lbStage">
+      <svg class="wm" viewBox="0 0 351.6 85.87" aria-hidden="true"><path d="M62.56,42.63h12.87l.37.37v27.98C47.63,101.9-2.45,81.49.09,39,.99,24.04,12.15,9.29,25.75,3.45,41.65-3.39,63.16-.1,74.43,13.65c.38.47,1.36,1.45,1.01,2.01l-10,8.23c-4.43-4.98-10.22-8.63-16.85-9.86C24.31,9.51,5.25,35.09,17.21,56.87c8.97,16.33,31.78,20.94,45.35,7.61v-21.86Z"/><polygon points="290.53 10.71 321.52 35.39 313.76 45.86 290.52 27.63 268.54 44.81 246.05 27.63 223.07 45.86 214.97 35.73 245.84 10.96 248.16 11.8 268.03 27.58 290.53 10.71"/><rect x="338.11" y="3.41" width="13.49" height="78.93"/><rect x="183.97" y="3.41" width="12.99" height="78.93"/><path d="M241.23,70.31c-.37-.63.88-1.93,1.33-2.46,2.4-2.83,5.8-4.72,8-7.74,8.26,8.7,20.49,9.47,30.77,3.79,1.63-.9,3.04-2.11,4.67-3l8.84,8.83c.1,1.21-6.52,5.46-7.77,6.17-12.15,6.83-27.57,6.63-39.37-.94-2.24-1.43-4.09-3.41-6.47-4.64Z"/><path d="M139.38,3.41c1.72.23,5.68,2.04,7.34,2.9,21.94,11.37,19.74,42.83-2.47,52.18l17.24,24.85h-14.86l-16.49-22.98h-20.61v22.98h-13.49V3.41h43.34ZM109.53,46.62h28.35c1.9,0,7.19-5.01,8.33-6.66,4.97-7.22,1.52-17.94-5.95-21.94-.98-.53-3.61-1.62-4.63-1.62h-26.11v30.22Z"/></svg>
+    </div>
+    <div class="lb-cap"><b id="lbName"></b><span id="lbMeta"></span></div>
+    <div class="lb-nav"><button class="lb-btn" id="lbPrev" type="button">← Prev</button><button class="lb-btn" id="lbClose" type="button">Close</button><button class="lb-btn" id="lbNext" type="button">Next →</button></div>
+  </div>
+</div>
+
+<script>
+/* Edit this list to add work. img: put an image URL or data: URI to show a real thumbnail. */
+const W=[
+ [1,"Thumbs-Up Hand with Star","3D","Gestures & Emoji"],[2,"Finger Heart Hand","3D","Gestures & Emoji"],
+ [3,"Pointing Index Hand","3D","Gestures & Emoji"],[4,"Party Emoji","3D","Gestures & Emoji"],
+ [5,"Magnifier Emoji","3D","Gestures & Emoji"],[6,"Heart-Eyes Emoji","3D","Gestures & Emoji"],
+ [9,"Hand Holding Coins","3D","Coins & Finance"],[16,"Christmas Tree","3D","Season & Life"],
+ [17,"Cake","3D","Season & Life"],[18,"Takeout Coffee Cup","3D","Season & Life"],
+ [19,"Shopping Icon Set","Icon","Shopping & Promo"],[20,"Food Icon Set","Icon","Season & Life"],
+ [21,"Fruit & Vegetable Icon Set","Icon","Season & Life"],[22,"Emoticon Collection","Icon","Gestures & Emoji"],
+ [24,"Calendar Date Set","3D",""],
+ [25,"Black Friday Tag","3D","Shopping & Promo"],[26,"Black Friday Shopping Cart","3D","Shopping & Promo"],
+ [27,"Black Friday Shopping Bag","3D","Shopping & Promo"],[28,"Black Friday Balloon","3D","Shopping & Promo"],
+ [29,"Black Friday Coupon & Coin","3D","Shopping & Promo"],[31,"Shape Emoticon","Icon","Gestures & Emoji"],[32,"Korean Money Collection","Illustration","Coins & Finance"],
+ [33,"Candy Cane","3D","Season & Life"],[34,"Snowy Christmas Tree","3D","Season & Life"],
+ [35,"Freezing Face Emoji","3D","Gestures & Emoji"],[36,"Sunglasses Emoji","3D","Gestures & Emoji"],[37,"Coffee Mug","3D","Season & Life"],
+ [38,"Hello Autumn Sale Poster","Illustration","Season & Life"],[39,"Autumn Coastal Road","Illustration","Season & Life"],
+ [40,"Autumn Countryside","Illustration","Season & Life"],[41,"Autumn Lakeside Drive","Illustration","Season & Life"],
+ [42,"Autumn Street with Dog","Illustration","Season & Life"],[43,"Perfect Day for Golf (Green)","Illustration","Season & Life"],
+ [44,"Perfect Day for Golf (Orange)","Illustration","Season & Life"],[45,"Tomato Pattern","Illustration",""],
+ [46,"Thumbs-Up Hand","3D","Gestures & Emoji"],[47,"Korean Won Bundle","3D","Coins & Finance"]
+].map(([no,name,genre,theme])=>({no,name,genre,theme,img:""}));
+[1,2,3,4,5,6,9,16,17,18,19,20,21,22,24,25,26,27,28,29,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47].forEach(n=>{W.find(w=>w.no===n).img="images/"+String(n).padStart(2,"0")+".jpg"});
+const cls={"Gestures & Emoji":"t-gesture","Coins & Finance":"t-coin","Shopping & Promo":"t-shop","Season & Life":"t-season"};
+const GENRES=["All","3D","Icon","Illustration"];
+let cur="All",shown=[],at=-1,lastFocus=null;
+const grid=document.getElementById("grid"),tabs=document.getElementById("tabs"),count=document.getElementById("count");
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function render(){
+  tabs.innerHTML=GENRES.map(g=>`<button type="button" class="tab" data-g="${g}" aria-pressed="${g===cur}">${g}</button>`).join("");
+  const list=W.filter(w=>cur==="All"||w.genre===cur);shown=list;
+  count.textContent=list.length+(list.length===1?" work":" works");
+  grid.innerHTML=list.length?list.map(w=>`<article class="card" tabindex="0" role="button" data-no="${w.no}" aria-label="View ${esc(w.name)}"><div class="thumb ${cls[w.theme]||"t-none"}">${w.img?`<img src="${esc(w.img)}" alt="${esc(w.name)}">`:`<span class="soon">Preview soon</span>`}</div><div class="meta"><b>${esc(w.name)}</b><span>${esc(w.genre)}${w.theme?" · "+esc(w.theme):""}</span></div></article>`).join(""):`<div class="empty">New ${esc(cur)} work is on the way.</div>`;
+}
+tabs.addEventListener("click",e=>{const b=e.target.closest(".tab");if(!b)return;cur=b.dataset.g;render()});
+render();
+/* Lightbox: image is shown at most 640px wide, with a logo watermark over it. Use reduced-size images (about 640px) for the img field. */
+/* Light / dark toggle: follows the system until the visitor picks one, then remembers it. */
+(function(){
+  const root=document.documentElement,mb=document.getElementById("mode");
+  const mq=matchMedia("(prefers-color-scheme: dark)");
+  let saved=null;try{saved=localStorage.getItem("grimi-mode")}catch(_){}
+  function apply(m){root.dataset.theme=m;root.dataset.mode=m;mb.setAttribute("aria-label",m==="dark"?"Switch to light mode":"Switch to dark mode");mb.setAttribute("aria-pressed",String(m==="dark"))}
+  apply(saved==="light"||saved==="dark"?saved:(mq.matches?"dark":"light"));
+  mb.addEventListener("click",()=>{const n=root.dataset.mode==="dark"?"light":"dark";apply(n);try{localStorage.setItem("grimi-mode",n)}catch(_){}});
+  mq.addEventListener&&mq.addEventListener("change",e=>{let s=null;try{s=localStorage.getItem("grimi-mode")}catch(_){}if(!s)apply(e.matches?"dark":"light")});
+})();
+const lb=document.getElementById("lb"),stage=document.getElementById("lbStage");
+function openLb(i){
+  at=(i+shown.length)%shown.length;const w=shown[at];
+  stage.querySelectorAll("img,.soon").forEach(n=>n.remove());
+  stage.className="lb-stage "+(cls[w.theme]||"t-none");
+  if(w.img){const im=document.createElement("img");im.src=w.img;im.alt=w.name;im.draggable=false;stage.insertBefore(im,stage.firstChild)}
+  else{const s=document.createElement("span");s.className="soon";s.textContent="Preview soon";stage.insertBefore(s,stage.firstChild)}
+  document.getElementById("lbName").textContent=w.name;
+  document.getElementById("lbMeta").textContent=w.genre+(w.theme?" · "+w.theme:"");
+  lb.hidden=false;document.getElementById("lbClose").focus();
+}
+function closeLb(){lb.hidden=true;if(lastFocus&&lastFocus.focus)lastFocus.focus()}
+grid.addEventListener("click",e=>{const c=e.target.closest(".card");if(!c)return;lastFocus=c;openLb(shown.findIndex(w=>String(w.no)===c.dataset.no))});
+grid.addEventListener("keydown",e=>{if(e.key!=="Enter"&&e.key!==" ")return;const c=e.target.closest(".card");if(!c)return;e.preventDefault();lastFocus=c;openLb(shown.findIndex(w=>String(w.no)===c.dataset.no))});
+document.getElementById("lbPrev").addEventListener("click",()=>openLb(at-1));
+document.getElementById("lbNext").addEventListener("click",()=>openLb(at+1));
+document.getElementById("lbClose").addEventListener("click",closeLb);
+lb.addEventListener("click",e=>{if(e.target===lb)closeLb()});
+stage.addEventListener("contextmenu",e=>e.preventDefault());
+addEventListener("keydown",e=>{if(lb.hidden)return;if(e.key==="Escape")closeLb();else if(e.key==="ArrowLeft")openLb(at-1);else if(e.key==="ArrowRight")openLb(at+1)});
+const btn=document.getElementById("copy"),addr=document.getElementById("addr");
+btn.addEventListener("click",async()=>{
+  try{await navigator.clipboard.writeText(addr.textContent);btn.textContent="Copied"}
+  catch(_){const r=document.createRange();r.selectNodeContents(addr);const s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent="Press Ctrl+C"}
+  setTimeout(()=>btn.textContent="Copy email",1800);
+});
+</script>
+
+</body>
+</html>
